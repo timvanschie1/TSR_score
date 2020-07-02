@@ -1,0 +1,34 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="js/papaparse.min.js" defer></script>
+  <script src="js/fuzzball.umd.min.js" defer charset="UTF-8"></script>
+  <script src="js/filesaver.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+
+<div class="content-container">
+  <div class="instruction-and-input">
+    <p>
+      Supply a csv with sep=; with n columns (can have any; all copied to output) of which at least one is Response
+      (the participant's response) and another one is Model (the true transcript of the stimulus)
+    </p>
+    <input type="file" id="fileInput"/>
+    <label for="fileInput">Select a file</label>
+  </div>
+</div>
+
+</body>
+</html>
