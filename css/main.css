@@ -28,6 +28,16 @@ html {
   background: linear-gradient(-10deg, #449bfc 50%, #f5f9ff 50%);
 }
 
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+p {
+  margin-top: 0;
+}
+
 /*
  * Remove text-shadow in selection highlight:
  * https://twitter.com/miketaylr/status/12228805301
@@ -286,11 +296,18 @@ textarea {
   align-items: center;
   width: 500px;
   max-width: 90%;
-  font-size: 1.2em;
-  padding: 2em;
+  font-size: 1.1em;
+  padding: 1em;
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+}
+
+@media only screen and (min-width: 400px) {
+  .instruction-and-input {
+    font-size: 1.2em;
+    padding: 2em;
+  }
 }
 
 .instruction-and-input input {
@@ -303,7 +320,6 @@ textarea {
 }
 
 .instruction-and-input label {
-  margin-top: 0.5em;
   font-size: 1.2em;
   padding: 0.5em 1em;
   color: #fff;
@@ -312,6 +328,13 @@ textarea {
   cursor: pointer;
   transition: background-color 0.2s ease-out;
 }
+
+@media only screen and (min-width: 400px) {
+  .instruction-and-input label {
+    margin-top: 0.5em;
+  }
+}
+
 
 .instruction-and-input input:focus + label {
   outline: 1px dotted #000;
