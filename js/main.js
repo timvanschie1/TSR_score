@@ -11,13 +11,52 @@ function handleFileLoaded(e) {
     /** Convert CSV file to JSON format we can work with in JavaScript
      * The function addFuzzyCalculations is called when conversion is completed with the result as the argument **/
     Papa.parse(csvData, {
-        complete: addFuzzyCalculations
+        complete: addFuzzyCalculations,
+        delimiter: ";",
+        skipEmptyLines: true,
     });
+}
+
+function showErrorMessage(message) {
+    console.error(message);
+    alert('ERROR: ' + message);
+}
+
+function isInputDataValid(data) {
+    const indexOfRowWithDeviatingLength = data.findIndex(row => row.length !== data[0].length);
+    if (indexOfRowWithDeviatingLength !== -1) {
+        const rowNr = indexOfRowWithDeviatingLength + 1;
+        showErrorMessage(
+            'row ' + rowNr + ' contains a different amount of columns than the amount in row 1. ' +
+            'This error could indicate, for instance, that row ' + rowNr + ' contains one or several columns ' +
+            'too many, or that the text data in the columns in that row already contain a semicolon ' +
+            '(i.e., one that was not meant to be interpreted as a column separator). Please supply ' +
+            'an input .csv file with the same number of columns in each row, and without any ' +
+            'semicolons in the text data itself (other than those to be used as separators).'
+        );
+        return false;
+    }
+
+    const rowsHaveAtLeastTwoColumns = data.every(row => (row.length > 1) && row[1] !== ""); /** Also check if second column has content**/
+    if (!rowsHaveAtLeastTwoColumns) {
+        showErrorMessage(
+            'The rows in the input .csv file do not contain at least two columns. If the input .csv does have at least ' +
+            'two columns, this error could indicate that the file does not have ; as column separator. Please supply an ' +
+            'input .csv file with ; as column separator.'
+        );
+        return false;
+    }
+
+    return true;
 }
 
 function addFuzzyCalculations(parsedResult) {
     /** jsonData is now an array of arrays ("rows") **/
     const jsonData = parsedResult.data;
+
+    if (!isInputDataValid(jsonData)) {
+        return;
+    }
 
     /** Loop over the results data with the map function. For every row: do modifications. The map function returns
      * the modified array of arrays to dataWithFuzzyCalculations. **/
@@ -25,6 +64,8 @@ function addFuzzyCalculations(parsedResult) {
         if (i === 0) {
             /** For the first row, add "Score" as the last array item ("column") **/
             row.push('Score');
+        } else if (row.length === 0) {
+            /** don't do anything if it's a trailing row **/
         } else {
             /** Otherwise, do fuzzball magic with the data in the second and third cell (response and model cells) and add
              * that data as the last array item **/
