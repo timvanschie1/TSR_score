@@ -5,6 +5,9 @@
  * saveAs = FileSaver.js. See https://github.com/eligrey/FileSaver.js/
  */
 
+/** Get the fileInput HTML element **/
+const fileInput = document.getElementById('fileInput');
+
 function handleFileLoaded(e) {
     const csvData = e.target.result;
 
@@ -20,6 +23,7 @@ function handleFileLoaded(e) {
 function showErrorMessage(message) {
     console.error(message);
     alert('ERROR: ' + message);
+    fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
 }
 
 function isInputDataValid(data) {
@@ -47,6 +51,24 @@ function isInputDataValid(data) {
         return false;
     }
 
+    const hasTargetColumnHeader = data[0].some(cell => cell.toLowerCase() === "target");
+    if (!hasTargetColumnHeader) {
+        showErrorMessage(
+            "the input .csv file does not have a column with the name 'target'. Please " +
+            "supply an input .csv file with one column labelled 'target' in the first row."
+        );
+        return false;
+    }
+
+    const hasResponseColumnHeader = data[0].some(cell => cell.toLowerCase() === "response");
+    if (!hasResponseColumnHeader) {
+        showErrorMessage(
+            "the input .csv file does not have a column with the name 'response'. Please " +
+            "supply an input .csv file with one column labelled 'response' in the first row."
+        );
+        return false;
+    }
+
     return true;
 }
 
@@ -58,20 +80,22 @@ function addFuzzyCalculations(parsedResult) {
         return;
     }
 
+    /** Figure out what the index is of the target and response columns **/
+    const indexOfTargetColumn = jsonData[0].findIndex(cell => cell.toLowerCase() === 'target');
+    const indexOfResponseColumn = jsonData[0].findIndex(cell => cell.toLowerCase() === 'response');
+
     /** Loop over the results data with the map function. For every row: do modifications. The map function returns
      * the modified array of arrays to dataWithFuzzyCalculations. **/
     const dataWithFuzzyCalculations = jsonData.map((row, i) => {
         if (i === 0) {
-            /** For the first row, add "Score" as the last array item ("column") **/
-            row.push('Score');
-        } else if (row.length === 0) {
-            /** don't do anything if it's a trailing row **/
+            /** For the first row, add "“TSR_score”" as the last array item ("column") **/
+            row.push('TSR_score');
         } else {
-            /** Otherwise, do fuzzball magic with the data in the second and third cell (response and model cells) and add
-             * that data as the last array item **/
-            const response = row[1];
-            const model = row[2];
-            const fuzzyCalculation = fuzzball.token_sort_ratio(model, response);
+            /** Otherwise, do fuzzball magic with the data in the target and response cells and add
+             * the result as the last array item **/
+            const target = row[indexOfTargetColumn];
+            const response = row[indexOfResponseColumn];
+            const fuzzyCalculation = fuzzball.token_sort_ratio(target, response);
 
             row.push(fuzzyCalculation);
         }
@@ -90,6 +114,7 @@ function convertToCsvAndSaveFile(jsonData) {
         type: "text/plain;charset=utf-8;",
     });
     saveAs(blob, "output.csv");
+    fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
 }
 
 function handleInputChange(e) {
@@ -98,17 +123,27 @@ function handleInputChange(e) {
         return;
     }
 
+    const confirmed = confirm (
+        "Users are asked to agree to cite Bosker (2021, Behavior Research Methods) in any " +
+        "publications that use this tool.\n\n" +
+        "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
+        "transcripts in speech intelligibility studies. Behavior Research Methods.\n\n" +
+        "By clicking 'OK', you agree to this condition"
+    );
+    if (!confirmed) {
+        fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
+        return;
+    }
+
     const file = e.target.files[0];
 
     /** See https://developer.mozilla.org/en-US/docs/Web/API/FileReader **/
     const reader = new FileReader();
     reader.onload = handleFileLoaded;
+
     /** After the file is loaded via readAsText (method of FileReader API), the function handleFileLoaded is called **/
     reader.readAsText(file);
 }
-
-/** Get the fileInput HTML element **/
-const fileInput = document.getElementById('fileInput');
 
 /** When the file is selected, call handleFileInputChange **/
 fileInput.addEventListener('change', handleInputChange);
