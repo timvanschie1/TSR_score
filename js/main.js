@@ -128,7 +128,7 @@ function handleInputChange(e) {
         "publications that use this tool.\n\n" +
         "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
         "transcripts in speech intelligibility studies. Behavior Research Methods.\n\n" +
-        "By clicking 'OK', you agree to this condition"
+        "By clicking 'OK', you agree to this condition."
     );
     if (!confirmed) {
         fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
