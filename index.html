@@ -1,34 +1,279 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Automated assessment of listener transcripts with the Token Sort Ratio | Max Planck Institute</title>
+    <meta name="description"
+          content="This open-source tool automatically calculates the Token Sort Ratio (TSR) for orthographic listener transcripts"
+    >
 
-  <link rel="stylesheet" href="css/normalize.css">
-  <link rel="stylesheet" href="css/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <script src="js/papaparse.min.js" defer></script>
-  <script src="js/fuzzball.umd.min.js" defer charset="UTF-8"></script>
-  <script src="js/filesaver.min.js" defer></script>
-  <script src="js/main.js" defer></script>
+    <link rel="shortcut icon" href="./img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css">
 
-  <meta name="theme-color" content="#fafafa">
+    <script src="js/papaparse.min.js" defer></script>
+    <script src="js/fuzzball.umd.min.js" defer charset="UTF-8"></script>
+    <script src="js/filesaver.min.js" defer></script>
+    <script src="js/main.js" defer></script>
 </head>
 
 <body>
 
-<div class="content-container">
-  <div class="instruction-and-input">
-    <p>
-      Supply a csv with sep=; with n columns (can have any; all copied to output) of which at least one is Response
-      (the participant's response) and another one is Model (the true transcript of the stimulus)
-    </p>
-    <input type="file" id="fileInput" accept=".csv"/>
-    <label for="fileInput">Select a file</label>
-  </div>
-</div>
+<header>
+    <a href="https://www.mpi.nl/">
+        <img src="./img/logo.png" alt="Max Planck Institute for Psycholinguistics">
+    </a>
+</header>
 
+<div class="main-content">
+    <div class="banner">
+        <img src="./img/banner-compressed.jpg" alt="">
+    </div>
+    <div class="container">
+        <h1>Automated assessment of listener transcripts with the Token Sort Ratio</h1>
+
+        <div class="instruction-and-input">
+            <p>
+                Supply an input .csv file with minimally one column labelled ‘target’ and one column labelled ‘response’
+                and with ; as separator.
+            </p>
+
+            <input type="file" id="fileInput" accept=".csv"/>
+            <label for="fileInput">Select a file</label>
+
+            <p class="instruction-and-input__disclaimer">
+                The data you provide are not stored, nor will any information contained therein be used for any purposes
+                other than to produce the output that you request.
+            </p>
+        </div>
+
+        <p>
+            This open-source tool automatically calculates the Token Sort Ratio (TSR) for orthographic listener
+            transcripts. The TSR score is a fuzzy string matching metric that – at the most basic level – quantifies the
+            orthographic match between a target string and a response string (value between 0 = no match and 100 =
+            perfect match). The TSR score has been shown to strongly correlate with human-generated scores of percentage
+            words correct (Bosker, 2021, Behavior Research Methods). It is an efficient, reliable, and accurate tool for
+            use in speech perception research (e.g., studies that examine the perception of speech in adverse listening
+            conditions, or degraded speech) or for generating listener intelligibility measures in clinical disciplines
+            such as speech-language pathology or audiology.
+        </p>
+
+        <p>
+            This online tool runs the function token_sort_ratio() from the fuzzywuzzy module in Python. It takes a .csv
+            file with ; as separator as input, with minimally one column labelled ‘target’ and one column labelled
+            ‘response’ in the header (= first row). For instance:
+        </p>
+
+        <div class="example-table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">participant</th>
+                    <th scope="col">trial</th>
+                    <th scope="col">item</th>
+                    <th scope="col">condition</th>
+                    <th scope="col">target</th>
+                    <th scope="col">response</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>clear</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog bit teh man</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>degraded</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog ?</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>clear</td>
+                    <td>the child was happy</td>
+                    <td>the child was happy</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>4</td>
+                    <td>2</td>
+                    <td>degraded</td>
+                    <td>the child was happy</td>
+                    <td>child</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>clear</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog bit the man</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>degraded</td>
+                    <td>the dog bit the man</td>
+                    <td>dog bites man</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>clear</td>
+                    <td>the child was happy</td>
+                    <td>the chidl was happy</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>2</td>
+                    <td>degraded</td>
+                    <td>the child was happy</td>
+                    <td>happy</td>
+                </tr>
+                </tbody>
+
+            </table>
+            <div class="example-table-addition"><a href="./csv/exampleinput.csv">download this example input.csv
+                file</a>
+            </div>
+        </div>
+
+        <p>
+            It runs the function token_sort_ratio(target, response) and prints the output in a new column named
+            ‘TSR_score’. For instance:
+        </p>
+
+        <div class="example-table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th scope="col">participant</th>
+                    <th scope="col">trial</th>
+                    <th scope="col">item</th>
+                    <th scope="col">condition</th>
+                    <th scope="col">target</th>
+                    <th scope="col">response</th>
+                    <th scope="col">TSR_score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>clear</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog bit teh man</td>
+                    <td>95</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>degraded</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog ?</td>
+                    <td>54</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>clear</td>
+                    <td>the child was happy</td>
+                    <td>the child was happy</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>4</td>
+                    <td>2</td>
+                    <td>degraded</td>
+                    <td>the child was happy</td>
+                    <td>child</td>
+                    <td>42</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>clear</td>
+                    <td>the dog bit the man</td>
+                    <td>the dog bit the man</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>2</td>
+                    <td>1</td>
+                    <td>degraded</td>
+                    <td>the dog bit the man</td>
+                    <td>dog bites man</td>
+                    <td>69</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>2</td>
+                    <td>clear</td>
+                    <td>the child was happy</td>
+                    <td>the chidl was happy</td>
+                    <td>95</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>4</td>
+                    <td>2</td>
+                    <td>degraded</td>
+                    <td>the child was happy</td>
+                    <td>happy</td>
+                    <td>42</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p>
+            This online tool only uses the default settings of token_sort_ratio(). For detailed documentation, please
+            see: <a href="https://github.com/seatgeek/fuzzywuzzy">https://github.com/seatgeek/fuzzywuzzy</a> and
+            <a href="https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/">https://chairnerd.seatgeek.com/fuzzywuzzy-fuzzy-string-matching-in-python/</a>.
+            This online tool was created by <a href="https://www.linkedin.com/in/timvanschie/">Tim van Schie</a> and the
+            underlying code is available on Github:
+            <a href="https://github.com/timvanschie1/TSR_score">https://github.com/timvanschie1/TSR_score</a>.
+            A Python script that runs the same code on a local .csv input file, which may be used for changing specific
+            settings, is available for download from <a href="https://osf.io/73dnj/">https://osf.io/73dnj/</a>.
+        </p>
+
+        <p>
+            Author: Hans Rutger Bosker<br/>
+            Max Planck Institute for Psycholinguistics<br/>
+            <a href="https://www.mpi.nl/people/bosker-hans-rutger">https://www.mpi.nl/people/bosker-hans-rutger</a><br/>
+            © Hans Rutger Bosker
+        </p>
+
+        <p>
+            To cite this tool, please use the following citation:
+        </p>
+
+        <cite>
+            Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener transcripts in speech
+            intelligibility studies. Behavior Research Methods.
+        </cite>
+    </div>
+</div>
 </body>
 </html>
