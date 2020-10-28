@@ -124,10 +124,9 @@ function handleInputChange(e) {
     }
 
     const confirmed = confirm (
-        "Users are asked to agree to cite Bosker (2021, Behavior Research Methods) in any " +
-        "publications that use this tool.\n\n" +
-        "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
-        "transcripts in speech intelligibility studies. Behavior Research Methods.\n\n" +
+        "Users are asked to agree to cite Bosker in any publications that use this tool.\n\n" +
+        "Bosker, H. R. (submitted). Using fuzzy string matching for automated assessment of listener " +
+        "transcripts in speech intelligibility studies.\n\n" +
         "By clicking 'OK', you agree to this condition."
     );
     if (!confirmed) {
