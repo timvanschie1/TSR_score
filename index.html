@@ -37,12 +37,21 @@
 
         <div class="instruction-and-input">
             <p>
-                Supply an input .csv file with minimally one column labelled ‘target’ and one column labelled ‘response’
-                and with ; as separator.
+                Supply an input .csv file with minimally one column labelled ‘target’ and one column labelled
+                ‘response’. Also select the separator to be used.
             </p>
 
+            <p id="separatorSelectError" class="separator-select-error">Please first select a separator.</p>
+
+            <select id="separatorSelect" class="separator-select" title="Select a separator">
+                <option value="">Select a separator</option>
+                <option value=";">Use ; as separator</option>
+                <option value=",">Use , as separator</option>
+                <option value="tab">Use tab as separator</option>
+            </select>
+
             <input type="file" id="fileInput" accept=".csv"/>
-            <label for="fileInput">Select a file</label>
+            <label for="fileInput">Select file and run</label>
 
             <p class="instruction-and-input__disclaimer">
                 The data you provide are not stored, nor will any information contained therein be used for any purposes
@@ -55,7 +64,7 @@
             transcripts. The TSR score is a fuzzy string matching metric that – at the most basic level – quantifies the
             orthographic match between a target string and a response string (value between 0 = no match and 100 =
             perfect match). The TSR score has been shown to strongly correlate with human-generated scores of percentage
-            words correct (Bosker, <i>submitted</i>). It is an efficient, reliable, and accurate tool for
+            words correct (Bosker, 2021). It is an efficient, reliable, and accurate tool for
             use in speech perception research (e.g., studies that examine the perception of speech in adverse listening
             conditions, or degraded speech) or for generating listener intelligibility measures in clinical disciplines
             such as speech-language pathology or audiology.
@@ -63,8 +72,8 @@
 
         <p>
             This online tool runs the function token_sort_ratio() from the fuzzywuzzy module in Python. It takes a .csv
-            file with ; as separator as input, with minimally one column labelled ‘target’ and one column labelled
-            ‘response’ in the header (= first row). For instance:
+            file as input, with minimally one column labelled ‘target’ and one column labelled
+            ‘response’ in the header (= first row). A comma, semicolon or tab can be used as separator. For instance:
         </p>
 
         <div class="example-table-wrapper">
@@ -270,8 +279,8 @@
         </p>
 
         <cite>
-            Bosker, H. R. (submitted). Using fuzzy string matching for automated assessment of listener transcripts in speech
-            intelligibility studies.
+            Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener transcripts in
+            speech intelligibility studies. Behavior Research Methods.
         </cite>
     </div>
 </div>

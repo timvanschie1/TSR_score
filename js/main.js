@@ -5,8 +5,12 @@
  * saveAs = FileSaver.js. See https://github.com/eligrey/FileSaver.js/
  */
 
-/** Get the fileInput HTML element **/
-const fileInput = document.getElementById('fileInput');
+const fileInputEl = document.getElementById('fileInput');
+const separatorSelectEl = document.querySelector('#separatorSelect')
+const separatorErrorEl = document.querySelector('#separatorSelectError');
+
+/** Separator is made global, so it can easily be changed and used at different places. **/
+let separator = "";
 
 function handleFileLoaded(e) {
     const csvData = e.target.result;
@@ -15,45 +19,45 @@ function handleFileLoaded(e) {
      * The function addFuzzyCalculations is called when conversion is completed with the result as the argument **/
     Papa.parse(csvData, {
         complete: addFuzzyCalculations,
-        delimiter: ";",
+        delimiter: separator === "tab" ? "\t" : separator,
         skipEmptyLines: true,
     });
 }
 
-function showErrorMessage(message) {
+function showErrorAlert(message) {
     console.error(message);
     alert('ERROR: ' + message);
-    fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
+    fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
 }
 
 function isInputDataValid(data) {
     const indexOfRowWithDeviatingLength = data.findIndex(row => row.length !== data[0].length);
     if (indexOfRowWithDeviatingLength !== -1) {
         const rowNr = indexOfRowWithDeviatingLength + 1;
-        showErrorMessage(
+        showErrorAlert(
             'row ' + rowNr + ' contains a different amount of columns than the amount in row 1. ' +
             'This error could indicate, for instance, that row ' + rowNr + ' contains one or several columns ' +
-            'too many, or that the text data in the columns in that row already contain a semicolon ' +
+            'too many, or that the text data in the columns in that row already contain a ' + separator + ' ' +
             '(i.e., one that was not meant to be interpreted as a column separator). Please supply ' +
             'an input .csv file with the same number of columns in each row, and without any ' +
-            'semicolons in the text data itself (other than those to be used as separators).'
+            'separator characters in the text data itself (other than those to be used as separators).'
         );
         return false;
     }
 
     const rowsHaveAtLeastTwoColumns = data.every(row => (row.length > 1) && row[1] !== ""); /** Also check if second column has content**/
     if (!rowsHaveAtLeastTwoColumns) {
-        showErrorMessage(
+        showErrorAlert(
             'The rows in the input .csv file do not contain at least two columns. If the input .csv does have at least ' +
-            'two columns, this error could indicate that the file does not have ; as column separator. Please supply an ' +
-            'input .csv file with ; as column separator.'
+            'two columns, this error could indicate that the file does not have ' + separator + ' as column separator. Please supply an ' +
+            'input .csv file with ' + separator + ' as column separator or select a different separator.'
         );
         return false;
     }
 
     const hasTargetColumnHeader = data[0].some(cell => cell.toLowerCase() === "target");
     if (!hasTargetColumnHeader) {
-        showErrorMessage(
+        showErrorAlert(
             "the input .csv file does not have a column with the name 'target'. Please " +
             "supply an input .csv file with one column labelled 'target' in the first row."
         );
@@ -62,7 +66,7 @@ function isInputDataValid(data) {
 
     const hasResponseColumnHeader = data[0].some(cell => cell.toLowerCase() === "response");
     if (!hasResponseColumnHeader) {
-        showErrorMessage(
+        showErrorAlert(
             "the input .csv file does not have a column with the name 'response'. Please " +
             "supply an input .csv file with one column labelled 'response' in the first row."
         );
@@ -109,28 +113,31 @@ function addFuzzyCalculations(parsedResult) {
 }
 
 function convertToCsvAndSaveFile(jsonData) {
-    const csvData = Papa.unparse(jsonData, {delimiter: ";"});
+    const csvData = Papa.unparse(
+        jsonData,
+        {delimiter: separator === "tab" ? "\t" : separator}
+    );
     const blob = new Blob([csvData], {
         type: "text/plain;charset=utf-8;",
     });
     saveAs(blob, "output.csv");
-    fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
+    fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
 }
 
-function handleInputChange(e) {
+function handleFileInputChange(e) {
     const noFile = e.target.files.length === 0;
     if (noFile) {
         return;
     }
 
-    const confirmed = confirm (
-        "Users are asked to agree to cite Bosker (submitted) in any publications that use this tool.\n\n" +
-        "Bosker, H. R. (submitted). Using fuzzy string matching for automated assessment of listener " +
-        "transcripts in speech intelligibility studies.\n\n" +
+    const confirmed = confirm(
+        "Users are asked to agree to cite Bosker (2021) in any publications that use this tool.\n\n" +
+        "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
+        "transcripts in speech intelligibility studies. Behavior Research Methods.\n\n" +
         "By clicking 'OK', you agree to this condition."
     );
     if (!confirmed) {
-        fileInput.value = ""; /** deselect the fileInput, so a change is also triggered when the same file uploaded again. **/
+        fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
         return;
     }
 
@@ -144,5 +151,40 @@ function handleInputChange(e) {
     reader.readAsText(file);
 }
 
+function handleFileInputClick(e) {
+    if (!separator) {
+        separatorErrorEl.classList.add("separator-select-error--visible");
+        e.preventDefault();
+    } else {
+        separatorErrorEl.classList.remove("separator-select-error--visible");
+    }
+}
+
+function selectLastUsedSeparatorFromLocalStorage() {
+    const savedSeparator = localStorage.getItem('separator');
+
+    if (savedSeparator) {
+        separator = savedSeparator;
+        separatorSelectEl.value = savedSeparator;
+    }
+}
+
+function setSeparator () {
+    /** Update the global separator variable, with the selected separator. **/
+    separator = separatorSelectEl.value;
+
+    /** Update the local storage, so this separator can be used by default on later visits/refreshes: **/
+    localStorage.setItem('separator', separator);
+}
+
+/** Get the user's last selected separator from the local storage and select it. **/
+selectLastUsedSeparatorFromLocalStorage();
+
+/** Every change in the separator select element, we update the global separator variable and the local storage. **/
+separatorSelectEl.addEventListener('change', setSeparator);
+
+/** To validate whether a separator is selected, call handleFileInputClick **/
+fileInputEl.addEventListener('click', handleFileInputClick);
+
 /** When the file is selected, call handleFileInputChange **/
-fileInput.addEventListener('change', handleInputChange);
+fileInputEl.addEventListener('change', handleFileInputChange);
