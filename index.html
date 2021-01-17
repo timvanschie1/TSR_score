@@ -36,7 +36,7 @@
         <h1>Automated assessment of listener transcripts with the Token Sort Ratio</h1>
 
         <div class="instruction-and-input">
-            <p>
+            <p class="instruction">
                 Supply an input .csv file with minimally one column labelled ‘target’ and one column labelled
                 ‘response’. Also select the separator to be used.
             </p>
@@ -53,7 +53,7 @@
             <input type="file" id="fileInput" accept=".csv"/>
             <label for="fileInput">Select file and run</label>
 
-            <p class="instruction-and-input__disclaimer">
+            <p class="disclaimer">
                 The data you provide are not stored, nor will any information contained therein be used for any purposes
                 other than to produce the output that you request.
             </p>
@@ -280,8 +280,29 @@
 
         <cite>
             Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener transcripts in
-            speech intelligibility studies. Behavior Research Methods.
+            speech intelligibility studies. Behavior Research Methods. <a
+                href="https://www.mpi.nl/publications/item3277028/using-fuzzy-string-matching-automated-assessment-listener-transcripts">Fulltext</a>
         </cite>
+    </div>
+</div>
+<div class="message message--error js-message" id="errorMessage">
+    <div class="message__popup">
+        <h1>Error</h1>
+        <div class="message__content js-message-content"></div>
+        <div class="message__buttons">
+            <a href="#" class="message__ok-button js-close-message">Ok</a>
+        </div>
+    </div>
+</div>
+
+<div class="message message--agree js-message" id="agreeMessage">
+    <div class="message__popup">
+        <h1>Agree with citation</h1>
+        <div class="message__content js-message-content"></div>
+        <div class="message__buttons">
+            <a href="#" class="message__agree-button js-close-message" id="agreeMessageAgreeButton">Agree</a>
+            <a href="#" class="message__cancel-button js-close-message" id="agreeMessageCancelButton">Cancel</a>
+        </div>
     </div>
 </div>
 </body>

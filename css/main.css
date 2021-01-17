@@ -122,6 +122,7 @@ html {
     color: #222;
     font-size: 14px;
     line-height: 1.4;
+    --error-red: #dc5041;
 }
 
 body {
@@ -130,6 +131,10 @@ body {
     min-height: 100vh;
     color: #5d594f;
     line-height: 1.8;
+}
+
+body.disable-scrolling {
+    overflow: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -213,9 +218,7 @@ header img {
 }
 
 .instruction-and-input {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
     margin: 2em auto;
     text-align: center;
     width: 500px;
@@ -233,6 +236,10 @@ header img {
     }
 }
 
+.instruction {
+    margin-bottom: 1em;
+}
+
 /**
  * Separator select
  */
@@ -241,9 +248,37 @@ header img {
 }
 
 .separator-select-error--visible {
-    display: block;
-    margin-bottom: 4px;
-    color: #eb0000;
+    position: absolute;
+    left: 50%;
+    margin: 0 auto;
+    padding: 8px 30px 8px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    color: #fff;
+    white-space: nowrap;
+    background-color: var(--error-red);
+    transform: translate(-50%, -125%);
+}
+
+.separator-select-error--visible::before {
+    content: "✕";
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+}
+
+.separator-select-error--visible::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    border-width: 7px 7px 0;
+    border-style: solid;
+    border-color: var(--error-red) transparent;
 }
 
 .separator-select {
@@ -253,7 +288,7 @@ header img {
     line-height: 1.3;
     padding: .6em 2em .5em .8em;
     box-sizing: border-box;
-    margin: 0 0 16px;
+    margin: 0 auto 16px;
     border: 1px solid #eee;
     box-shadow: 0 1px 0 1px rgba(0, 0, 0, .04);
     border-radius: .5em;
@@ -298,6 +333,7 @@ header img {
 }
 
 .instruction-and-input label {
+    display: inline-block;
     font-size: 1.1em;
     padding: 0.5em 1em;
     color: #fff;
@@ -305,6 +341,9 @@ header img {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s ease-out;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none; /* Safari */
+    user-select: none;
 }
 
 .instruction-and-input input:focus + label {
@@ -320,7 +359,7 @@ header img {
 /**
  * Disclaimer
  */
-.instruction-and-input__disclaimer {
+.disclaimer {
     margin: 1em 0 0;
     font-size: 0.9em;
     font-style: italic;
@@ -345,4 +384,120 @@ header img {
     text-align: center;
     font-size: 0.9em;
     font-style: italic;
+}
+
+/**
+ Message popups
+ */
+.message {
+    display: none;
+}
+
+.message--visible {
+    display: block;
+}
+
+.message::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.message__popup {
+    position: fixed;
+    top: calc(50% + 20px);
+    transform: translateY(calc(-50% - 20px));
+    margin: 0 auto;
+    padding: 25px 15px;
+    max-width: 700px;
+    right: 20px;
+    left: 20px;
+    box-shadow: 0 0 10px -3px rgba(0, 0, 0, 0.5);
+    background-color: #fff;
+    max-height: calc(100vh - 40px);
+    border-radius: 5px;
+    overflow: auto;
+}
+
+@media only screen and (min-width: 600px) {
+    .message__popup {
+        padding: 30px;
+    }
+}
+
+.message__popup h1 {
+    color: inherit;
+    font-size: 30px;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5em;
+}
+
+.message__content {
+    font-size: 16px;
+}
+
+.message__buttons {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.message__ok-button,
+.message__agree-button,
+.message__cancel-button {
+    display: inline-block;
+    font-size: 18px;
+    padding: 0.3em 1em;
+    width: 100px;
+    text-align: center;
+    border-radius: 5px;
+    transition: background-color 0.2s ease-out;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    text-decoration: none;
+}
+
+.message__ok-button {
+    color: #fff !important;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.message__ok-button:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.message__agree-button {
+    margin-right: 8px;
+    color: #fff !important;
+    background-color: #007562;
+}
+
+.message__agree-button:hover {
+    background-color: #015347;
+}
+
+.message__cancel-button {
+    color: #007562;
+}
+
+.message__cancel-button:hover {
+    color: #015347;
+}
+
+/**
+ * Message popup variants
+ **/
+.message--error .message__popup {
+    color: #fff;
+    background-color: var(--error-red);
+}
+
+.message--agree .message__popup h1 {
+    color: #007562
 }

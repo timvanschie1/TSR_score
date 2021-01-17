@@ -8,6 +8,13 @@
 const fileInputEl = document.getElementById('fileInput');
 const separatorSelectEl = document.querySelector('#separatorSelect')
 const separatorErrorEl = document.querySelector('#separatorSelectError');
+const errorMessageEl = document.querySelector('#errorMessage');
+const errorMessageContentEl = errorMessageEl.querySelector(".js-message-content");
+const agreeMessageEl = document.querySelector('#agreeMessage');
+const agreeMessageContentEl = agreeMessageEl.querySelector(".js-message-content");
+const agreeMessageAgreeButton = document.querySelector("#agreeMessageAgreeButton");
+const agreeMessageCancelButton = document.querySelector("#agreeMessageCancelButton");
+const closeMessageButtons = document.querySelectorAll('.js-close-message');
 
 /** Separator is made global, so it can easily be changed and used at different places. **/
 let separator = "";
@@ -24,18 +31,58 @@ function handleFileLoaded(e) {
     });
 }
 
-function showErrorAlert(message) {
+function showErrorMessage(message) {
     console.error(message);
-    alert('ERROR: ' + message);
+    const currentLocationWithoutHash = window.location.href.split("#")[0];
+    window.location = currentLocationWithoutHash + "#errorMessage";  /** Move tab focus to popup **/
+    errorMessageEl.classList.add('message--visible');
+    errorMessageContentEl.innerHTML = message;
+    document.body.classList.add('disable-scrolling');
     fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
+}
+
+function showAgreeMessage(message, agreeCallback, cancelCallback) {
+    const currentLocationWithoutHash = window.location.href.split("#")[0];
+    window.location = currentLocationWithoutHash + "#agreeMessage"; /** Move tab focus to popup **/
+    agreeMessageEl.classList.add('message--visible');
+    agreeMessageContentEl.innerHTML = message;
+    document.body.classList.add('disable-scrolling');
+
+    /** Clean event listeners for the next time the agree message is shown. **/
+    function removeEventListeners() {
+        agreeMessageAgreeButton.removeEventListener("click", agree);
+        agreeMessageCancelButton.removeEventListener("click", cancel);
+    }
+
+    function agree() {
+        removeEventListeners()
+        agreeCallback();
+    }
+
+    agreeMessageAgreeButton.addEventListener("click", agree);
+
+    function cancel() {
+        removeEventListeners();
+        cancelCallback();
+    }
+
+    agreeMessageCancelButton.addEventListener("click", cancel);
+}
+
+function closeMessage(e) {
+    e.preventDefault();
+    const messageEl = e.target.closest(".message");
+    messageEl.classList.remove("message--visible")
+    document.body.classList.remove("disable-scrolling");
+    setTimeout(() => messageEl.querySelector(".js-message-content").innerHTML = "", 100);
 }
 
 function isInputDataValid(data) {
     const indexOfRowWithDeviatingLength = data.findIndex(row => row.length !== data[0].length);
     if (indexOfRowWithDeviatingLength !== -1) {
         const rowNr = indexOfRowWithDeviatingLength + 1;
-        showErrorAlert(
-            'row ' + rowNr + ' contains a different amount of columns than the amount in row 1. ' +
+        showErrorMessage(
+            'Row ' + rowNr + ' contains a different amount of columns than the amount in row 1. ' +
             'This error could indicate, for instance, that row ' + rowNr + ' contains one or several columns ' +
             'too many, or that the text data in the columns in that row already contain a ' + separator + ' ' +
             '(i.e., one that was not meant to be interpreted as a column separator). Please supply ' +
@@ -47,7 +94,7 @@ function isInputDataValid(data) {
 
     const rowsHaveAtLeastTwoColumns = data.every(row => (row.length > 1) && row[1] !== ""); /** Also check if second column has content**/
     if (!rowsHaveAtLeastTwoColumns) {
-        showErrorAlert(
+        showErrorMessage(
             'The rows in the input .csv file do not contain at least two columns. If the input .csv does have at least ' +
             'two columns, this error could indicate that the file does not have ' + separator + ' as column separator. Please supply an ' +
             'input .csv file with ' + separator + ' as column separator or select a different separator.'
@@ -57,8 +104,8 @@ function isInputDataValid(data) {
 
     const hasTargetColumnHeader = data[0].some(cell => cell.toLowerCase() === "target");
     if (!hasTargetColumnHeader) {
-        showErrorAlert(
-            "the input .csv file does not have a column with the name 'target'. Please " +
+        showErrorMessage(
+            "The input .csv file does not have a column with the name 'target'. Please " +
             "supply an input .csv file with one column labelled 'target' in the first row."
         );
         return false;
@@ -66,8 +113,8 @@ function isInputDataValid(data) {
 
     const hasResponseColumnHeader = data[0].some(cell => cell.toLowerCase() === "response");
     if (!hasResponseColumnHeader) {
-        showErrorAlert(
-            "the input .csv file does not have a column with the name 'response'. Please " +
+        showErrorMessage(
+            "The input .csv file does not have a column with the name 'response'. Please " +
             "supply an input .csv file with one column labelled 'response' in the first row."
         );
         return false;
@@ -127,36 +174,35 @@ function convertToCsvAndSaveFile(jsonData) {
 function handleFileInputChange(e) {
     const noFile = e.target.files.length === 0;
     if (noFile) {
+        console.log('no file');
         return;
     }
 
-    const confirmed = confirm(
+    showAgreeMessage(
         "Users are asked to agree to cite Bosker (2021) in any publications that use this tool.\n\n" +
         "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
-        "transcripts in speech intelligibility studies. Behavior Research Methods.\n\n" +
-        "By clicking 'OK', you agree to this condition."
-    );
-    if (!confirmed) {
-        fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
-        return;
-    }
+        "transcripts in speech intelligibility studies. <i>Behavior Research Methods</i>.\n\n" +
+        "By clicking 'OK', you agree to this condition.",
+        function () {
+            const file = e.target.files[0];
 
-    const file = e.target.files[0];
+            /** See https://developer.mozilla.org/en-US/docs/Web/API/FileReader **/
+            const reader = new FileReader();
+            reader.onload = handleFileLoaded;
 
-    /** See https://developer.mozilla.org/en-US/docs/Web/API/FileReader **/
-    const reader = new FileReader();
-    reader.onload = handleFileLoaded;
-
-    /** After the file is loaded via readAsText (method of FileReader API), the function handleFileLoaded is called **/
-    reader.readAsText(file);
+            /** After the file is loaded via readAsText (method of FileReader API), the function handleFileLoaded is called **/
+            reader.readAsText(file);
+        },
+        function () {
+            fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
+        }
+    )
 }
 
 function handleFileInputClick(e) {
     if (!separator) {
         separatorErrorEl.classList.add("separator-select-error--visible");
         e.preventDefault();
-    } else {
-        separatorErrorEl.classList.remove("separator-select-error--visible");
     }
 }
 
@@ -169,12 +215,16 @@ function selectLastUsedSeparatorFromLocalStorage() {
     }
 }
 
-function setSeparator () {
+function setSeparator() {
     /** Update the global separator variable, with the selected separator. **/
     separator = separatorSelectEl.value;
 
     /** Update the local storage, so this separator can be used by default on later visits/refreshes: **/
     localStorage.setItem('separator', separator);
+
+    if (separator) {
+        separatorErrorEl.classList.remove("separator-select-error--visible");
+    }
 }
 
 /** Get the user's last selected separator from the local storage and select it. **/
@@ -188,3 +238,9 @@ fileInputEl.addEventListener('click', handleFileInputClick);
 
 /** When the file is selected, call handleFileInputChange **/
 fileInputEl.addEventListener('change', handleFileInputChange);
+
+/** Hide field error message when clicked on it **/
+separatorErrorEl.addEventListener("click", () => separatorErrorEl.classList.remove('separator-select-error--visible'))
+
+/** Hide message popup when Close message button is clicked **/
+closeMessageButtons.forEach(button => button.addEventListener("click", closeMessage));
