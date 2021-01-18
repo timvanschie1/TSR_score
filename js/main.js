@@ -179,10 +179,10 @@ function handleFileInputChange(e) {
     }
 
     showAgreeMessage(
-        "Users are asked to agree to cite Bosker (2021) in any publications that use this tool.\n\n" +
-        "Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
-        "transcripts in speech intelligibility studies. <i>Behavior Research Methods</i>.\n\n" +
-        "By clicking 'OK', you agree to this condition.",
+        "<p>Users are asked to agree to cite Bosker (2021) in any publications that use this tool. " +
+        "By clicking 'Agree', you agree to this condition.</p>" +
+        "<p>Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
+        "transcripts in speech intelligibility studies. <i>Behavior Research Methods</i>.</p>",
         function () {
             const file = e.target.files[0];
 
@@ -194,7 +194,7 @@ function handleFileInputChange(e) {
             reader.readAsText(file);
         },
         function () {
-            fileInputEl.value = ""; /** deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
+            fileInputEl.value = ""; /** Deselect the fileInputEl, so a change is also triggered when the same file uploaded again. **/
         }
     )
 }
