@@ -182,7 +182,7 @@ function handleFileInputChange(e) {
         "<p>Users are asked to agree to cite Bosker (2021) in any publications that use this tool. " +
         "By clicking 'Agree', you agree to this condition.</p>" +
         "<p>Bosker, H. R. (2021). Using fuzzy string matching for automated assessment of listener " +
-        "transcripts in speech intelligibility studies. <i>Behavior Research Methods</i>. " +
+        "transcripts in speech intelligibility studies. <i>Behavior Research Methods 53</i>, 1945–1953." +
         "doi: <a href='https://doi.org/10.3758/s13428-021-01542-4' target='_blank'>10.3758/s13428-021-01542-4</a>. " + 
         "<a href='https://www.mpi.nl/publications/item3277028/using-fuzzy-string-matching-automated-assessment-listener-transcripts' target='_blank'>Fulltext</a></p>",
         function () {
